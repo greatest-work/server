@@ -40,15 +40,17 @@ exports.writeFile = async data => {
 
 exports.writeConfigFile = async (temp) => {
     const tempConf = await TEMP_BLOG_CONFIG();
+    const blogConfig = await controller.getDictionary('blogConfig');
+
     return new Promise((resolve, reject) => {
-        fs.writeFile(`/www/wwwroot/blog.giao.club/docs/.vitepress/config.js`, tempConf, null, function(err) {
+        fs.writeFile(blogConfig[0].value, tempConf, null, function(err) {
             if (err) {
                 reject(err)
                 throw err;
             }
             console.log(`config.js 写入成功, time: ${new Date().getTime()}`);
             // 写入成功后读取测试
-            fs.readFile(`/www/wwwroot/blog.giao.club/docs/.vitepress/config.js`, 'utf-8', function(err, data) {
+            fs.readFile(blogConfig[0].value, 'utf-8', function(err, data) {
                 if (err) {
                     reject(err);
                     throw err;
