@@ -1,9 +1,9 @@
-const query = require('./query')
+const query = require('../utils/query')
 const moment = require('moment');
 
 exports.addArticle = (values) => {
     // const id = uuidv4();
-    const date = moment().format('YYYY-MM-DD');
+    const date = Date.now();
     const [ createTime, updateTime ] = [date, date]
     const { title, content, userId, id } = values;
     const _sql = "INSERT INTO ARTICLE SET id=?,createTime=?,updateTime=?,title=?,content=?,userId=?;"
@@ -33,4 +33,5 @@ exports.getDictionary = (key) => {
     const SQL = `SELECT * FROM BLOG_CONFIG WHERE field = '${key}'`;
     return query(SQL);
 }
+
 // UPDATE BLOG_CONFIG SET value='/www/wwwroot/blog.giao.club' WHERE field = 'blogPath'

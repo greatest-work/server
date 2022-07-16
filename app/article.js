@@ -1,9 +1,9 @@
 const controller = require('../service/mysql.js');
-const qs = require('../service/qs');
-const validate = require('../service/validate');
-const resluts = require('../service/status');
-const release = require('../service/release');
-
+const qs = require('../utils/qs');
+const validate = require('../utils/validate');
+const resluts = require('../utils/status');
+const release = require('../utils//release');
+const getSurfaceTotal = require('../service/count')
 const { v4: uuidv4 } = require('uuid');
 
 exports.getArticles = async ctx => {
@@ -19,12 +19,6 @@ exports.getArticles = async ctx => {
             ctx.body = 'error';
         })
 }
-
-const getSurfaceTotal = async surface => {
-    const result = await controller.getSurfaceTotal(surface);
-    return result[0].count;
-}
-
 
 exports.addArticle = async ctx => {
     const data = await qs.postdata(ctx);
