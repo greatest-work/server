@@ -2,7 +2,8 @@ const controller = require('../service/mysql.js');
 const qs = require('../utils/qs');
 const validate = require('../utils/validate');
 const resluts = require('../utils/status');
-const release = require('../utils//release');
+const file = require('../utils/fs');
+const shell = require('../utils/shell');
 const getSurfaceTotal = require('../service/count')
 const { v4: uuidv4 } = require('uuid');
 
@@ -21,7 +22,7 @@ exports.getSite = async ctx => {
 }
 
 exports.addSite = async ctx => {
-    const data = await qs.postdata(ctx);
+    const data = ctx.request.body;
     try {
         await validate(data, {
             name: 'required',
@@ -35,7 +36,14 @@ exports.addSite = async ctx => {
     // 创建 ID 通用
     // data.id = uuidv4();
     await controller.addSite(data)
-        .then(_ => {
+        .then(async _ => {
+            try {
+                await shell(`mkdir ${data.path}`);
+                file.writeInitFile(data, 'index');
+            } catch (e) {
+                console.log('data.path error', data.path)
+                file.writeInitFile(data, 'index');
+            }
             ctx.body = resluts(200);
         }).catch((err) => {
             console.log(err)
@@ -72,7 +80,6 @@ exports.getSiteInfo = async ctx => {
 }
 
 exports.deleteSite = async ctx => {
-    console.log(ctx.params)
     try {
         await validate(ctx.params, {
             siteId: 'required'
@@ -94,3 +101,28 @@ exports.deleteSite = async ctx => {
         }
     }
 }
+
+exports.updateSite = async ctx => {
+    const data = ctx.request.body;
+    try {
+        await validate(data, {
+            id: 'required'
+        })
+        await controller.updateSite(data).then(result => {
+            ctx.status = 200;
+            ctx.body = {
+                code: 200,
+                msg: 'ok'
+            }
+        }).catch(error => {
+            ctx.body = error
+        })
+    } catch (error) {
+        ctx.status = 400;
+        return ctx.body = {
+            code: 400,
+            msg: '参数传递不正确'
+        }
+    }
+}
+

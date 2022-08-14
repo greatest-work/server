@@ -1,4 +1,6 @@
 const getPages = require("./utils/pages");
+const conf = require("./utils/conf");
+
 async function getConfig() {
   let config = {
     head: [
@@ -20,10 +22,9 @@ async function getConfig() {
       ["script", { src: "https://lib.baomitu.com/gitalk/1.7.0/gitalk.min.js" }],
       ["script", { src: "https://lib.baomitu.com/axios/0.21.1/axios.js" }]
     ],
-    title: "悲伤日记",
+    title: conf.title,
     themeConfig: {
       displayAllHeaders:true,
-      logo: '/favicon.ico',
       pages: await getPages(),
       author: "悲伤日记",
       search: true,
