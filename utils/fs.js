@@ -2,17 +2,12 @@ const fs = require('fs');
 const controller = require('../service/mysql')
 const TEMP_BLOG_CONFIG = require('../temp/temp.config.blog');
 const TEMP_ARTICLE = require('../temp/temp.article');
+const getBlogInfo = require('../utils/getBlogInfo');
 
 exports.writeFile = async data => {
     const { title, content, id } = data;
-    let blogPath = ""
-    try {
-        const resluts =  await controller.getDictionary('blogPath')
-        blogPath = resluts[0].value;
-    } catch (error) {
-        throw error
-    }
-    // console.log(blogPath)
+
+    const { blogPath } = await getBlogInfo.path()
     const temp = id !== 'index' ? await TEMP_ARTICLE(data) : content;
     // console.log(temp);
     return new Promise((resolve, reject) => {
@@ -42,7 +37,10 @@ exports.writeConfigFile = async (temp) => {
     const tempConf = await TEMP_BLOG_CONFIG();
     const blogConfig = await controller.getDictionary('blogConfig');
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {resolve(true);}
+        
+        /*
+        (resolve, reject) => {
         fs.writeFile(blogConfig[0].value, tempConf, null, function(err) {
             if (err) {
                 reject(err)
@@ -61,5 +59,7 @@ exports.writeConfigFile = async (temp) => {
                 resolve(resluts);
             });
         });
-    })
+    }
+        */
+        )
 }

@@ -1,8 +1,8 @@
 module.exports = resluts = code => {
     switch (code) {
-        case 403:
+        case 400:
             return {
-                code: 403,
+                code: 400,
                 msg: '参数传递不正确'
             }
         case 200:

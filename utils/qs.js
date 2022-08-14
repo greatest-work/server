@@ -32,14 +32,15 @@ exports.postdata = (ctx) => {
             ctx.req.addListener('data', (data) => {
                 postdata += data
             })
+            
             ctx.req.addListener("end", function () {
                 let parseData = parseQueryStr(postdata);
                 let result = {};
                 Object.keys(parseData).forEach(item => {
                     result = item
                 })
-                if(result) resolve(JSON.parse(result))
-                else reject('缺少参数')
+                if(result) resolve(JSON.parse(JSON.stringify(result)))
+                else reject('qs缺少参数')
             })
         } catch (err) {
             reject(err)
