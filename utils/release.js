@@ -4,25 +4,13 @@ const shell = require('./shell');
 const getSurfaceTotal = require('../service/count');
 const { exec, execSync  } = require('child_process');
 const getBlogInfo = require('./getBlogInfo')
+const sendEmail = require('./sendEmail')
 
 // 发布文章
 exports.write = async (data) => {
     return new Promise(async (resolve, reject) => {
-        await file.writeConfigFile();
+        // await file.writeConfigFile();
         
-        const count = await getSurfaceTotal('ARTICLE');
-        const articles = await controller.getArticles(1, count);
-        // 首页
-        let indexConetent = "";
-        const indexPageSize = 10;
-        // 归档
-        let placeConetent = "";
-        articles.forEach((article, index) => {
-            if(index < indexPageSize) {
-                indexConetent += `<a href="/${article.id}.html" >${article.title}</a><br/>`
-            }
-            placeConetent += `<a href="/${article.id}.html" >${article.title} -- ${article.createTime}</a><br/>`
-        });
 
         // await file.writeFile({id: 'place', content: placeConetent, title: 'place'})
         // await file.writeFile({id: 'index', content: indexConetent, title: 'index'})
@@ -33,7 +21,8 @@ exports.write = async (data) => {
 }
 
 exports.build = async (siteId = null) => {
-    const { blogPath, webPath } = await getBlogInfo.path();
+    const { blogPath, webPath } = await getBlogInfo.path(siteId);
+    await file.writeConfigFile(siteId);
     const msg = '编译整包完成'
     return new Promise(async (resolve, reject) => {
         await shell(`cd ${blogPath} && yarn install`).then(async res => {
@@ -44,14 +33,29 @@ exports.build = async (siteId = null) => {
             }).catch(err => {
                 console.log(err)
             });
+            console.log(webPath, 'release');
+            try {
+                await shell(`cd ${webPath} && ls -l docs`)
+            } catch (error) {
+                await shell(`cd ${webPath} && mkdir docs`)
+            }
+            
             await shell(`cd ${webPath} && rm *.html && rm -rf docs`);
-            await shell(`cp -r ${blogPath}/.vitepress/dist/* ${webPath}`).then(res => {
+            await shell(`cp -r ${blogPath}/.vitepress/dist/* ${webPath}`).then(async res => {
                 console.log(msg);
                 controller.updateSiteStatus(1, siteId)
                 controller.updateArticleStatus(1, siteId);
+                const siteInfo = await controller.getSiteInfo(siteId);
+                 sendEmail({
+                    ...siteInfo[0], 
+                    email: '491324693@qq.com', 
+                    content: `构建成功！\n <a href="${siteInfo[0].siteLink}">${siteInfo[0].siteLink}</a>`,
+                    title: `构建完成`
+                 })
                 resolve({
                     code: 200
                 })
+                
             }).catch(err => {
                 console.log(err)
             });
