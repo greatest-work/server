@@ -29,7 +29,7 @@ const article = require('../app/article');
  */
 // #endregion
 
-router.get('/articles', article.getArticles);
+router.get('/article/list', article.getArticles);
 
 // #region
 /**
@@ -66,11 +66,12 @@ router.get('/articles', article.getArticles);
  *          description: 参数类型错误
  */
 // #endregion
-router.post('/article', article.addArticle);
+router.post('/article/add', article.addArticle);
+router.post('/article/update', article.updateArticle);
 
 
-router.post('/article_info', article.getArticleInfo);
+router.post('/article/info', article.getArticleInfo);
 
-router.post('/reset_build', article.resetBuild);
+router.post('/reset_build/:siteId', article.resetBuild);
 
 module.exports = router

@@ -1,6 +1,6 @@
 // const mysql = require('mysql');
 const Koa = require('koa');
-// const bodyParser = require('koa-bodyparser');
+const bodyParser = require('koa-bodyparser');
 // const views = require('koa-views')
 // const session = require('koa-session-minimal');
 // const MysqlStore = require('koa-mysql-session');
@@ -13,10 +13,10 @@ const { port, host, HTTP } = ServerConfig;
 const URL = `${HTTP}://${host}:${port}`;
 // const config = require('./config/mysql.config.js');
 const app = new Koa();
+app.use(bodyParser());
 app.use(cors({
   origin: [`${HTTP}://${host}/`],
 }))
-
 // dns.resolve('lovemysoul.vip','A', function(e,r) {
 //   if (e) console.log(e);
 //   else console.log(r);
@@ -24,6 +24,7 @@ app.use(cors({
 
 app.use(require('./routes/article.js').routes());
 app.use(require('./routes/dictionary.js').routes());
+app.use(require('./routes/site.js').routes());
 
 const koaSwagger = require('koa2-swagger-ui');
 // swagger配置
