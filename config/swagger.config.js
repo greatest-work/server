@@ -6,14 +6,6 @@ const swaggerDefinition = {
     description: '',
     version: '1.0.0',
     title: 'Blog Server',
-    // 服务条款
-    // termsOfService: 'http://swagger.io/terms/',
-    // contact: {
-    //   name: 'Contact developers',
-    //   url: 'https://mail.qq.com/',
-    //   email: '741167479@qq.com'
-    // },
-    // 开源协议
     license: {
       name: 'Apache 2.0',
       url: 'http://www.apache.org/licenses/LICENSE-2.0.html'

@@ -11,11 +11,13 @@ exports.getSite = async ctx => {
     const { page, pageSize } = qs.get(ctx.request.url);
     const total = await getSurfaceTotal('SITE');
     await controller.getSite(page, pageSize)
-        .then(result => {
-            ctx.body = {
-                total,
-                result
-            };
+        .then(async result => {
+            for (var i = 0; i < result.length; i++) {
+                const { id } = result[i];
+                const queryInfo = id ? `siteId = '${id}'` : '';
+                result[i].articleTotal = await getSurfaceTotal('ARTICLE', queryInfo);
+            }
+            ctx.body = resluts(200, ctx, { items: result, total })
         }).catch((err) => {
             ctx.body = 'error';
         })
@@ -29,8 +31,7 @@ exports.addSite = async ctx => {
             path: 'required'
         })
     } catch (error) {
-        ctx.status = 403;
-        return ctx.body = resluts(403);
+        ctx.body = resluts(400, ctx)
     }
 
     // 创建 ID 通用
@@ -44,7 +45,7 @@ exports.addSite = async ctx => {
                 console.log('data.path error', data.path)
                 file.writeInitFile(data, 'index');
             }
-            ctx.body = resluts(200);
+            ctx.body = resluts(200, ctx);
         }).catch((err) => {
             console.log(err)
             ctx.body = 'error'
@@ -52,14 +53,13 @@ exports.addSite = async ctx => {
 }
 
 exports.getSiteInfo = async ctx => {
-    const data = await qs.postdata(ctx);
+    const data = ctx.request.body;
     try {
         await validate(data, {
             id: 'required'
         })
     } catch (error) {
-        ctx.status = 403;
-        return ctx.body = resluts(403);
+        ctx.body = resluts(400, ctx)
     }
     await controller.getSiteInfo(data.id)
         .then(result => {
@@ -86,19 +86,12 @@ exports.deleteSite = async ctx => {
         })
         await controller.deleteSite(ctx.params.siteId).then(result => {
             ctx.status = 204;
-            ctx.body = {
-                code: 200,
-                msg: 'ok'
-            }
+            ctx.body = resluts(204, ctx)
         }).catch(error => {
             ctx.body = error
         })
     } catch (error) {
-        ctx.status = 400;
-        return ctx.body = {
-            code: 400,
-            msg: '参数传递不正确'
-        }
+        ctx.body = resluts(400, ctx)
     }
 }
 
@@ -109,20 +102,12 @@ exports.updateSite = async ctx => {
             id: 'required'
         })
         await controller.updateSite(data).then(result => {
-            ctx.status = 200;
-            ctx.body = {
-                code: 200,
-                msg: 'ok'
-            }
+            ctx.body = resluts(200, ctx)
         }).catch(error => {
             ctx.body = error
         })
     } catch (error) {
-        ctx.status = 400;
-        return ctx.body = {
-            code: 400,
-            msg: '参数传递不正确'
-        }
+        ctx.body = resluts(400, ctx)
     }
 }
 

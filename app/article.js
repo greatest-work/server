@@ -18,32 +18,32 @@ exports.getArticles = async ctx => {
                 const siteInfo = result[i].siteId && await controller.getSiteInfo(result[i].siteId)
                 result[i].siteInfo = siteInfo.length ? siteInfo[0] : null
             }
-            ctx.body = {
+            const data = {
                 total,
-                result
-            };
+                items: result
+            }
+            ctx.body = resluts(200, ctx, data)
         }).catch((err) => {
-            ctx.body = 'error';
+            ctx.body = err;
         })
 }
 
 exports.addArticle = async ctx => {
-    const data = await qs.postdata(ctx);
+    const data = ctx.request.body
     try {
         await validate(data, {
             title: 'required',
             content: 'required'
         })
     } catch (error) {
-        ctx.status = 403;
-        return ctx.body = resluts(403);
+        return ctx.body = resluts(400, ctx);
     }
 
     // 创建 ID 通用
     data.id = uuidv4();
     await controller.addArticle(data)
         .then(_ => {
-            ctx.body = resluts(200);
+            ctx.body = resluts(200, ctx);
             // action(data)
         }).catch((err) => {
             ctx.body = 'error'
@@ -56,14 +56,13 @@ const action = async data => {
 }
 
 exports.getArticleInfo = async ctx => {
-    const data = await qs.postdata(ctx);
+    const data = ctx.request.body
     try {
         await validate(data, {
             id: 'required'
         })
     } catch (error) {
-        ctx.status = 403;
-        return ctx.body = resluts(403);
+        return ctx.body = resluts(400, ctx);
     }
     await controller.getArticleInfo(data.id)
         .then(result => {
@@ -92,28 +91,23 @@ exports.updateArticle = async ctx => {
             siteId: 'required'
         })
     } catch (error) {
-        ctx.status = 403;
-        return ctx.body = resluts(403);
+        return ctx.body = resluts(400, ctx);
     }
     await controller.updateArticle(data).then(reslut => {
-        ctx.body = resluts(200);
+        ctx.body = resluts(200, ctx);
     }).catch(error => {
         ctx.body = error;
     })
 }
 
 exports.deleteArticle = async ctx => {
-    const data = await qs.postdata(ctx);
+    const data = await ctx.request.body;
     try {
         await validate(data, {
             id: 'required'
         })
     } catch (error) {
-        ctx.status = 403;
-        return ctx.body = {
-            code: 403,
-            msg: '参数传递不正确'
-        }
+        return ctx.body = resluts(400, ctx);
     }
 }
 
@@ -124,13 +118,13 @@ exports.resetBuild = async ctx => {
     const queryInfo = siteId ? `siteId = '${siteId}'` : '';
     const total = await getSurfaceTotal('ARTICLE', queryInfo);
     if(!total) {
-        return ctx.body = resluts(400)
+        return ctx.body = resluts(400, ctx)
     }
     try {
         await controller.updateSiteStatus(0, siteId)
         await controller.updateArticleStatus(2, siteId);
     } catch (error) {
-        ctx.body = resluts(error)
+        ctx.body = resluts(500, ctx)
     }
     console.log(siteId)
     const { blogPath } = await getBlogInfo.path(siteId);
