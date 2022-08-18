@@ -70,7 +70,8 @@ router.post('/article/add', article.addArticle);
 router.post('/article/update', article.updateArticle);
 
 
-router.post('/article/info', article.getArticleInfo);
+router.get('/article/info/:articleId', article.getArticleInfo);
+router.delete('/article/delete/:articleId', article.deleteArticle);
 
 router.post('/reset_build/:siteId', article.resetBuild);
 

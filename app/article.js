@@ -33,7 +33,9 @@ exports.addArticle = async ctx => {
     try {
         await validate(data, {
             title: 'required',
-            content: 'required'
+            content: 'required',
+            siteId: 'rquired',
+            userId: 'rquired'
         })
     } catch (error) {
         return ctx.body = resluts(400, ctx);
@@ -44,9 +46,8 @@ exports.addArticle = async ctx => {
     await controller.addArticle(data)
         .then(_ => {
             ctx.body = resluts(200, ctx);
-            // action(data)
-        }).catch((err) => {
-            ctx.body = 'error'
+        }).catch((error) => {
+            ctx.body = resluts(500, ctx, { error })
         })
 }
 
@@ -56,15 +57,9 @@ const action = async data => {
 }
 
 exports.getArticleInfo = async ctx => {
-    const data = ctx.request.body
-    try {
-        await validate(data, {
-            id: 'required'
-        })
-    } catch (error) {
-        return ctx.body = resluts(400, ctx);
-    }
-    await controller.getArticleInfo(data.id)
+    const { articleId } = ctx.params;
+    if(!articleId) return ctx.body = resluts(400, ctx);
+    await controller.getArticleInfo(articleId)
         .then(result => {
             let data = {}
             if (result?.length) {
@@ -76,9 +71,9 @@ exports.getArticleInfo = async ctx => {
                     msg: '暂无数据'
                 }
             }
-            ctx.body = data
-        }).catch((err) => {
-            ctx.body = 'error'
+            ctx.body = resluts(200, ctx, data);
+        }).catch((error) => {
+            ctx.body = resluts(500, ctx, { error })
         })
 }
 
@@ -87,27 +82,28 @@ exports.updateArticle = async ctx => {
     try {
         await validate(data, {
             title: 'required',
-            tags: 'required',
-            siteId: 'required'
+            content: 'required',
+            siteId: 'rquired',
+            userId: 'rquired'
         })
     } catch (error) {
         return ctx.body = resluts(400, ctx);
     }
     await controller.updateArticle(data).then(reslut => {
-        ctx.body = resluts(200, ctx);
+        return ctx.body = resluts(200, ctx);
     }).catch(error => {
-        ctx.body = error;
+        return ctx.body = error;
     })
 }
 
 exports.deleteArticle = async ctx => {
-    const data = await ctx.request.body;
+    const { articleId } = ctx.params;
+    if(!articleId) return ctx.body = resluts(400, ctx);
     try {
-        await validate(data, {
-            id: 'required'
-        })
+        await controller.deleteArticle(articleId);
+        return ctx.body = resluts(204, ctx);
     } catch (error) {
-        return ctx.body = resluts(400, ctx);
+        return ctx.body = resluts(500, ctx, { error });
     }
 }
 
@@ -124,7 +120,7 @@ exports.resetBuild = async ctx => {
         await controller.updateSiteStatus(0, siteId)
         await controller.updateArticleStatus(2, siteId);
     } catch (error) {
-        ctx.body = resluts(500, ctx)
+        return ctx.body = resluts(500, ctx, { error })
     }
     console.log(siteId)
     const { blogPath } = await getBlogInfo.path(siteId);

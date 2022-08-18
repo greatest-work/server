@@ -5,7 +5,7 @@ exports.path = async siteId => {
     let webPath = "";
     try {
         if (siteId) {
-            const SITE_PATHS = await controller.getSitePath(siteId);
+            const SITE_PATHS = await controller.getSiteInfo(siteId);
             console.log(SITE_PATHS[0].path)
             webPath = SITE_PATHS[0].path;
         } else {

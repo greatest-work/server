@@ -37,6 +37,7 @@ exports.build = async (siteId = null) => {
             try {
                 await shell(`cd ${webPath} && ls -l docs`)
             } catch (error) {
+                console.log(error);
                 await shell(`cd ${webPath} && mkdir docs`)
             }
             
@@ -44,9 +45,15 @@ exports.build = async (siteId = null) => {
             await shell(`cp -r ${blogPath}/.vitepress/dist/* ${webPath}`).then(async res => {
                 console.log(msg);
                 controller.updateSiteStatus(1, siteId)
-                controller.updateArticleStatus(1, siteId);
-                const siteInfo = await controller.getSiteInfo(siteId);
-                 sendEmail({
+                controller.updateArticleStatus(1, { siteId });
+                let siteInfo = null
+                try {
+                    siteInfo = await controller.getSiteInfo(siteId);
+                } catch (error) {
+                    reject(error)
+                }
+                console.log(siteInfo);
+                sendEmail({
                     ...siteInfo[0], 
                     email: '491324693@qq.com', 
                     content: `构建成功！\n <a href="${siteInfo[0].siteLink}">${siteInfo[0].siteLink}</a>`,
@@ -56,8 +63,8 @@ exports.build = async (siteId = null) => {
                     code: 200
                 })
                 
-            }).catch(err => {
-                console.log(err)
+            }).catch(error => {
+                reject(error)
             });
         });
     })

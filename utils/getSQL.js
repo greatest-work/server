@@ -32,7 +32,6 @@ exports.getUpdateSQL = ({table, field, where}) => {
     if(typeof field == 'object' && JSON.stringify(field) !== '{}') {
         const updateData = Object.keys(field)
         updateData.forEach((key, index) => {
-            if(!field[key]) return
             const comma = (index + 1) !== updateData.length ? ', ' : '';
             updateField += `${key} = '${field[key]}'${comma}`
         })
@@ -42,4 +41,8 @@ exports.getUpdateSQL = ({table, field, where}) => {
     return `UPDATE ${table} SET ${updateField} ${targetWhere}`;
 }
 
- 
+exports.getDeleteSQL = ({table, where}) => {
+    if(!table || !where) return new Error('参数不合法， table where 是必填字段')
+    const targetWhere = where ? getWhereSQL(where) : '';
+    return `DELETE FROM ${table} ${targetWhere}`;
+}

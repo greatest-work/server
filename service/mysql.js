@@ -2,7 +2,7 @@ const query = require('../utils/query')
 const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
 const xss = require('xss');
-const { getSelectSQL, getUpdateSQL } = require('../utils/getSQL');
+const { getSelectSQL, getUpdateSQL, getDeleteSQL } = require('../utils/getSQL');
 const newDate = () => moment().format('YYYY-MM-DD HH:MM:SS');
 
 // ------------------------------- 文章 -- start ------------------------------- 
@@ -21,16 +21,17 @@ exports.getArticles = ( page = 1, pageSize = 10, siteId) => {
 
 exports.getArticleInfo = id => {
     const SQL = getSelectSQL({table: 'ARTICLE', where: { id }})
-    console.log(SQL);
     return query(SQL)
 }
 
 exports.updateArticleStatus = (status, id) => {
+    const where = typeof id === 'string' ? { id } : id;
     const SQL = getUpdateSQL({
         table: 'ARTICLE', 
         field: { status }, 
-        where: { id }
+        where
     })
+    console.log(SQL);
     return query(SQL);
     // const SQL = `UPDATE ARTICLE SET status = '${target}' WHERE siteId = '${id}'`;
     // return query(SQL)
@@ -57,22 +58,28 @@ exports.updateArticle = data => {
 }
 
 exports.deleteArticle = id => {
-    const SQL = `DELETE FROM ARTICLE where id = '${id}'`;
+    const SQL = getDeleteSQL({ 
+        table: 'ARTICLE', 
+        where: { 
+            id 
+        } 
+    })
+    console.log(SQL);
     return query(SQL);
 }
 
-exports.getSurfaceTotal = (surface, where = '') => {
-    const WHERE = where ? `WHERE ${where}` : ''
-    const SQL = `SELECT COUNT(*) as count FROM ${surface} ${WHERE}`;
-    return query(SQL)
-}
 // ------------------------------- 文章 -- end ------------------------------- 
 
 
 // ------------------------------- 站点 -- start ------------------------------- 
 
 exports.getSiteInfo = id => {
-    const SQL = `SELECT * FROM SITE where id = '${id}'`;
+    const SQL = getSelectSQL({
+        table: 'SITE', 
+        where: { 
+            id 
+        }
+    })
     return query(SQL);
 }
 
@@ -90,11 +97,6 @@ exports.addSite = (values) => {
 exports.getSite = ( page = 1, pageSize = 10) => {
     const SQL = `SELECT * FROM SITE ORDER BY createTime DESC limit ${(page - 1) * pageSize},${pageSize}`
     return query(SQL)
-}
-
-exports.getSitePath = siteId => {
-    const SQL = `SELECT * FROM SITE WHERE id='${siteId}'`
-    return query(SQL);
 }
 
 exports.updateSite = (data) => {
@@ -118,16 +120,23 @@ exports.updateSite = (data) => {
 }
 
 exports.updateSiteStatus = (status, id) => {
+    const where = typeof id === 'string' ? { id } : id;
     const SQL = getUpdateSQL({
         table: 'SITE', 
         field: { status }, 
-        where: { id }
+        where
     })
+    console.log(SQL);
     return query(SQL);
 }
 
 exports.deleteSite = id => {
-    const SQL = `DELETE FROM SITE WHERE id = '${id}'`;
+    const SQL = getDeleteSQL({ 
+        table: 'SITE', 
+        where: { 
+            id 
+        } 
+    })
     return query(SQL);
 }
 // ------------------------------- 站点 -- end -------------------------------
@@ -139,7 +148,7 @@ exports.getUserInfo = username => {
     const SQL = getSelectSQL({ 
         table: 'USER', 
         field: ['username', 'password'], 
-        where: {username: username} 
+        where: { username: username } 
     })
     return query(SQL);
 }
@@ -156,4 +165,11 @@ exports.userRegister = data => {
 exports.getDictionary = (key) => {
     const SQL = `SELECT * FROM BLOG_CONFIG WHERE field = '${key}'`;
     return query(SQL);
+}
+
+
+exports.getSurfaceTotal = (surface, where = '') => {
+    const WHERE = where ? `WHERE ${where}` : ''
+    const SQL = `SELECT COUNT(*) as count FROM ${surface} ${WHERE}`;
+    return query(SQL)
 }

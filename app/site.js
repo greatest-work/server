@@ -17,9 +17,9 @@ exports.getSite = async ctx => {
                 const queryInfo = id ? `siteId = '${id}'` : '';
                 result[i].articleTotal = await getSurfaceTotal('ARTICLE', queryInfo);
             }
-            ctx.body = resluts(200, ctx, { items: result, total })
+            return ctx.body = resluts(200, ctx, { items: result, total })
         }).catch((err) => {
-            ctx.body = 'error';
+            return ctx.body = 'error';
         })
 }
 
@@ -31,7 +31,7 @@ exports.addSite = async ctx => {
             path: 'required'
         })
     } catch (error) {
-        ctx.body = resluts(400, ctx)
+        return ctx.body = resluts(400, ctx)
     }
 
     // 创建 ID 通用
@@ -45,23 +45,17 @@ exports.addSite = async ctx => {
                 console.log('data.path error', data.path)
                 file.writeInitFile(data, 'index');
             }
-            ctx.body = resluts(200, ctx);
+            return ctx.body = resluts(200, ctx);
         }).catch((err) => {
             console.log(err)
-            ctx.body = 'error'
+            return ctx.body = 'error'
         })
 }
 
 exports.getSiteInfo = async ctx => {
-    const data = ctx.request.body;
-    try {
-        await validate(data, {
-            id: 'required'
-        })
-    } catch (error) {
-        ctx.body = resluts(400, ctx)
-    }
-    await controller.getSiteInfo(data.id)
+    const { siteId } = ctx.params;
+    if(!siteId) return ctx.body = resluts(400, ctx);
+    await controller.getSiteInfo(siteId)
         .then(result => {
             let data = {}
             if (result?.length) {
@@ -73,9 +67,9 @@ exports.getSiteInfo = async ctx => {
                     msg: '暂无数据'
                 }
             }
-            ctx.body = data
+            return ctx.body = data
         }).catch((err) => {
-            ctx.body = 'error'
+            return ctx.body = 'error'
         })
 }
 
@@ -85,13 +79,12 @@ exports.deleteSite = async ctx => {
             siteId: 'required'
         })
         await controller.deleteSite(ctx.params.siteId).then(result => {
-            ctx.status = 204;
-            ctx.body = resluts(204, ctx)
+            return ctx.body = resluts(204, ctx)
         }).catch(error => {
-            ctx.body = error
+            return ctx.body = resluts(500, ctx, { error })
         })
     } catch (error) {
-        ctx.body = resluts(400, ctx)
+        return ctx.body = resluts(400, ctx)
     }
 }
 
