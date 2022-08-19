@@ -1,5 +1,5 @@
 
-module.exports = TEMP_INIT = async () => ({
+module.exports = TEMP_INIT = async (data = {}) => ({
     index: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,5 +54,7 @@ module.exports = TEMP_INIT = async () => ({
         Email: <a href="mailto:crazymryan@gmail.com">crazymryan@gmail.com</a>
     </p>
 </body>
-</html>`
+</html>`,
+    '.user.ini': `open_basedir=${data?.path}:/tmp/`,
+    '.htaccess': ''
 })

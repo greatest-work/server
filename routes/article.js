@@ -67,7 +67,7 @@ router.get('/article/list', article.getArticles);
  */
 // #endregion
 router.post('/article/add', article.addArticle);
-router.post('/article/update', article.updateArticle);
+router.put('/article/update', article.updateArticle);
 
 
 router.get('/article/info/:articleId', article.getArticleInfo);

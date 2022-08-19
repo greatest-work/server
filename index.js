@@ -9,6 +9,7 @@ const resluts = require('./utils/status');
 
 const app = new Koa();
 app.use(bodyParser());
+app.proxy = true;
 app.use(cors({
   origin: [`${HTTP}://${host}/`],
 }))
@@ -32,10 +33,10 @@ app.use(koajwt({
 
 
 app.use(require('./routes/user.js').routes());
-
 app.use(require('./routes/article.js').routes());
 app.use(require('./routes/dictionary.js').routes());
 app.use(require('./routes/site.js').routes());
+app.use(require('./routes/log.js').routes());
 
 const koaSwagger = require('koa2-swagger-ui');
 // swagger配置

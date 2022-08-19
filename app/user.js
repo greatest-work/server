@@ -2,13 +2,15 @@ const controller = require('../service/mysql.js');
 const validate = require('../utils/validate');
 const resluts = require('../utils/status');
 const tkconf = require('../service/jwtConf');
-const md5 = require('md5')
+const md5 = require('md5');
+const sendEmail = require('../utils/sendEmail')
 // 创建token
 const addtoken = require('../service/addToken.js');
 // 解密token
-const decodetoken = require('../service/decodeToken');
 
 exports.userLogin = async ctx => {
+    console.log(ctx.request.ip);
+    const ip = ctx.request.ips?.join(",")
     const data = ctx.request.body;
     try{
         await validate(data, {
@@ -18,12 +20,11 @@ exports.userLogin = async ctx => {
     } catch(error) {
         return ctx.body = resluts(400, ctx);
     }
-    const { username, password, id } = data;
+    const { username, password } = data;
     // 简单的做个 md5 加密
     const md5Username = md5(username);
     const md5Password = md5(password);
 
-    const accessToken = addtoken(id, tkconf.secret, tkconf.tokenLife);
     let user = null
     // 查找数据库的对应用户
     try {
@@ -31,9 +32,28 @@ exports.userLogin = async ctx => {
     } catch (error) {
         ctx.body = resluts(500, ctx)
     }
-    console.log(user, md5Username);
+
     const res = user?.find(item => item.password === md5Password && item.username === md5Username);
+    const accessToken = addtoken(res.id, tkconf.secret, tkconf.tokenLife);
     ctx.body = res ? resluts(200, ctx, { token: accessToken }) : resluts(401, ctx) 
+
+    controller.addLog({ 
+        reslut: ctx.status, 
+        sentence: 'login', 
+        content: JSON.stringify(data), 
+        ip,
+        userId: res.id
+    })
+    
+    sendEmail({
+        name:'登录通知', 
+        email: '491324693@qq.com', 
+        content: `登录时间:<b>${new Date()}</b> <br/>
+        登录IP：<b>${ip}</b><br/>
+        登录账号：<b>${username}</b><br/>
+        登录状态：${ctx.status === 200? '成功' : '失败'}`,
+        title: `${username}`
+    })
 }
 
 exports.userRegister = async ctx => {

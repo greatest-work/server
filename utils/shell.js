@@ -12,6 +12,7 @@ module.exports = shell = async (shell) => {
                 resolve({stdout, stderr})
             });
         } catch (error) {
+            console.log(error);
             reject(error)
         }
     })

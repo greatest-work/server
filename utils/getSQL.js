@@ -12,7 +12,7 @@ const getWhereSQL = function(where = {}) {
     return where_sql;
 }
 
-exports.getSelectSQL = ({table, field, where}) => {
+exports.getSelectSQL = ({table, field, where, by = false, bySort = "DESC", limit}) => {
     if(!table) return new Error('参数不合法， table 是必填字段')
     let reslutField = '';
     if(Array.isArray(field)) {
@@ -21,9 +21,13 @@ exports.getSelectSQL = ({table, field, where}) => {
             const comma = (index + 1) !== field.length ? ', ' : '';
             reslutField += `${table}.${item}${comma}`
         })
-    } else reslutField = '*'
+    } else reslutField = '*';
+    const orderBy = by ? `ORDER BY ${by} ${bySort}` : '';
+    if(limit && typeof limit !== 'object') return  new Error('参数不合法， limit 期望是一个对象')
+    const limitSql = limit ? `LIMIT ${limit.index}, ${limit.size}` : '';
     const targetWhere = where ? getWhereSQL(where) : '';
-    return `SELECT ${reslutField} FROM ${table} ${targetWhere}`
+    console.log(`SELECT ${reslutField} FROM ${table} ${targetWhere} ${orderBy} ${limitSql}`);
+    return `SELECT ${reslutField} FROM ${table} ${targetWhere} ${orderBy} ${limitSql}`
 }
 
 exports.getUpdateSQL = ({table, field, where}) => {

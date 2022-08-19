@@ -15,7 +15,7 @@ module.exports = sendEmail = (data = {}) => {
     let mailOptions = {
         from: `"G-Work" <${user}>`, // 发送者昵称和地址
         to: data.email, // 接收者的邮箱地址
-        subject: `【${data.name}】, ${data.title}`, // 邮件主题
+        subject: `【${data.name}】${data.title}`, // 邮件主题
         html: data.content || ''
     };
     //发送邮件

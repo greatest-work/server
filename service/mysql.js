@@ -13,9 +13,18 @@ exports.addArticle = (values) => {
 }
 
 exports.getArticles = ( page = 1, pageSize = 10, siteId) => {
-    const WHERE = siteId ? `WHERE siteId='${siteId}'` : '';
-    const CONTENT = siteId ? 'ARTICLE.content,' : ''
-    const SQL = `SELECT ARTICLE.id, ARTICLE.createTime, ${CONTENT} ARTICLE.updateTime, ARTICLE.status, ARTICLE.title, ARTICLE.userId, ARTICLE.tags, ARTICLE.siteId FROM ARTICLE ${WHERE} ORDER BY createTime DESC LIMIT ${(page - 1) * pageSize},${pageSize}`
+    const queryInfo = {
+        table: 'ARTICLE',
+        field: ['id', 'createTime', 'updateTime', 'status', 'userId', 'tags', 'siteId', 'title'],
+        by: 'createTime',
+        where: siteId ? { siteId } : false,
+        limit: {
+            index: (page - 1) * pageSize,
+            size: pageSize
+        }
+    }
+    if(siteId) queryInfo.field.push(content)
+    const SQL = getSelectSQL(queryInfo)
     return query(SQL);
 }
 
@@ -39,11 +48,11 @@ exports.updateArticleStatus = (status, id) => {
 
 exports.updateArticle = data => {
     const { title, id, content, userId, siteId, status, tags } = data;
-    const SQL = getUpdateSQL({
+    const queryInfo = {
         table: 'ARTICLE', 
         field: { 
             title, 
-            content, 
+            content,
             userId, 
             siteId, 
             status, 
@@ -51,10 +60,10 @@ exports.updateArticle = data => {
             updateTime: newDate()
          }, 
         where: { id }
-    })
+    }
+    if(content) queryInfo.content = content
+    const SQL = getUpdateSQL(queryInfo)
     return query(SQL);
-    // const SQL = `UPDATE ARTICLE SET title='${title}',updateTime=${date},userId='${userId}',siteId='${siteId}',tags='${tags.join(",")}',status='${status}', updateTime='${newDate()}' ${CONTENT} WHERE id = '${id}'`
-    // return query(SQL);
 }
 
 exports.deleteArticle = id => {
@@ -147,8 +156,8 @@ exports.deleteSite = id => {
 exports.getUserInfo = username => {
     const SQL = getSelectSQL({ 
         table: 'USER', 
-        field: ['username', 'password'], 
-        where: { username: username } 
+        field: ['username', 'password', 'id'], 
+        where: { username } 
     })
     return query(SQL);
 }
@@ -161,6 +170,27 @@ exports.userRegister = data => {
 
 // ------------------------------- 用户 -- end ------------------------------- 
 
+
+// ------------------------------- 日志 -- start ------------------------------- 
+
+exports.addLog = data => {
+    console.log(data);
+    const { ip, userId = "none" , sentence, content, reslut } = data;
+    const SQL = `INSERT INTO LOG SET ip=?, time=?, userId=?, sentence=?, content=?, id=?, reslut=?`;
+    console.log(SQL);
+    return query(SQL, [ip, newDate(), userId, sentence, content, uuidv4(), reslut ]);
+}
+
+exports.getLog = (limit, offset) => {
+    const queryInfo = {
+        table: 'LOG',
+        field: ['userId', 'time', 'sentence', 'ip'],
+        by: 'time',
+    }
+    const SQL = getSelectSQL(queryInfo)
+    console.log(SQL);
+    return query(SQL)
+}
 
 exports.getDictionary = (key) => {
     const SQL = `SELECT * FROM BLOG_CONFIG WHERE field = '${key}'`;

@@ -33,6 +33,7 @@ module.exports = validate = async (ctxdata, checkData) => {
                 result.push(resli);
             }
         }
+        console.log(result);
         if (result.length > 0) {
             reject(result);
         } else {

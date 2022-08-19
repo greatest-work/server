@@ -7,6 +7,7 @@ const shell = require('../utils/shell');
 const getSurfaceTotal = require('../service/count');
 const getBlogInfo = require('../utils/getBlogInfo');
 const { v4: uuidv4 } = require('uuid');
+const setLog = require('../utils/setLog');
 
 exports.getArticles = async ctx => {
     const { page, pageSize, siteId } = qs.get(ctx.request.url);
@@ -45,7 +46,7 @@ exports.addArticle = async ctx => {
     data.id = uuidv4();
     await controller.addArticle(data)
         .then(_ => {
-            ctx.body = resluts(200, ctx);
+            ctx.body = resluts(201, ctx);
         }).catch((error) => {
             ctx.body = resluts(500, ctx, { error })
         })
@@ -78,16 +79,17 @@ exports.getArticleInfo = async ctx => {
 }
 
 exports.updateArticle = async ctx => {
-    const data = ctx.request.body
+    const data = ctx.request.body;
     try {
         await validate(data, {
             title: 'required',
             content: 'required',
-            siteId: 'rquired',
-            userId: 'rquired'
+            siteId: 'required',
+            userId: 'required',
+            id: 'required'
         })
     } catch (error) {
-        return ctx.body = resluts(400, ctx);
+        return ctx.body = resluts(400, ctx, { error });
     }
     await controller.updateArticle(data).then(reslut => {
         return ctx.body = resluts(200, ctx);
@@ -122,7 +124,6 @@ exports.resetBuild = async ctx => {
     } catch (error) {
         return ctx.body = resluts(500, ctx, { error })
     }
-    console.log(siteId)
     const { blogPath } = await getBlogInfo.path(siteId);
     await shell(`cd ${blogPath} && rm -rf docs && mkdir docs`);
     await controller.getArticles(1, total, siteId).then(
@@ -135,4 +136,5 @@ exports.resetBuild = async ctx => {
             release.build(siteId);
         }
     )
+    setLog(ctx, 'build');
 }

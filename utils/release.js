@@ -10,8 +10,6 @@ const sendEmail = require('./sendEmail')
 exports.write = async (data) => {
     return new Promise(async (resolve, reject) => {
         // await file.writeConfigFile();
-        
-
         // await file.writeFile({id: 'place', content: placeConetent, title: 'place'})
         // await file.writeFile({id: 'index', content: indexConetent, title: 'index'})
         console.log(`开始写入${data.id}`)
@@ -28,12 +26,13 @@ exports.build = async (siteId = null) => {
         await shell(`cd ${blogPath} && yarn install`).then(async res => {
             console.log("下载依赖完成");
             console.log("开始打包");
-            await shell(`cd ${blogPath} && yarn build`).then(res => {
-                console.log("打包完成");
-            }).catch(err => {
-                console.log(err)
-            });
-            console.log(webPath, 'release');
+            
+            try {
+                await shell(`cd ${blogPath} && yarn build`)
+            } catch (error) {
+                reject(error)
+            }
+            console.log(msg);
             try {
                 await shell(`cd ${webPath} && ls -l docs`)
             } catch (error) {
@@ -43,7 +42,6 @@ exports.build = async (siteId = null) => {
             
             await shell(`cd ${webPath} && rm *.html && rm -rf docs`);
             await shell(`cp -r ${blogPath}/.vitepress/dist/* ${webPath}`).then(async res => {
-                console.log(msg);
                 controller.updateSiteStatus(1, siteId)
                 controller.updateArticleStatus(1, { siteId });
                 let siteInfo = null
@@ -58,7 +56,7 @@ exports.build = async (siteId = null) => {
                     email: '491324693@qq.com', 
                     content: `构建成功！\n <a href="${siteInfo[0].siteLink}">${siteInfo[0].siteLink}</a>`,
                     title: `构建完成`
-                 })
+                })
                 resolve({
                     code: 200
                 })
