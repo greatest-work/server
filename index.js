@@ -1,30 +1,42 @@
-// const mysql = require('mysql');
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
-// const views = require('koa-views')
-// const session = require('koa-session-minimal');
-// const MysqlStore = require('koa-mysql-session');
-// const staticCache = require('koa-static-cache');
-
+const koajwt = require('koa-jwt');
 const ServerConfig = require('./config/server.config');
 const cors = require('@koa/cors');
-// var dns = require('dns');
 const { port, host, HTTP } = ServerConfig;
 const URL = `${HTTP}://${host}:${port}`;
-// const config = require('./config/mysql.config.js');
+const resluts = require('./utils/status');
+
 const app = new Koa();
 app.use(bodyParser());
+app.proxy = true;
 app.use(cors({
   origin: [`${HTTP}://${host}/`],
 }))
-// dns.resolve('lovemysoul.vip','A', function(e,r) {
-//   if (e) console.log(e);
-//   else console.log(r);
-// });
 
+
+app.use((ctx, next) => {
+  return next().catch(err => {
+    if (err.status === 401) {
+      ctx.status = 401;
+      ctx.body = resluts(401, ctx)
+    } else {
+      throw err;
+    }});
+});
+
+app.use(koajwt({
+  secret: 'greatest-work-admin'
+}).unless({
+  path: ['/user/login', '/user/register']
+}));
+
+
+app.use(require('./routes/user.js').routes());
 app.use(require('./routes/article.js').routes());
 app.use(require('./routes/dictionary.js').routes());
 app.use(require('./routes/site.js').routes());
+app.use(require('./routes/log.js').routes());
 
 const koaSwagger = require('koa2-swagger-ui');
 // swagger配置

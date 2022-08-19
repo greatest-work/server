@@ -2,7 +2,6 @@ const nodemailer = require('nodemailer'); //发送邮件的node插件
 const { pass, user } = require('../const/email');
 
 module.exports = sendEmail = (data = {}) => {
-    console.log(user, pass)
     let transporter = nodemailer.createTransport({
         service: 'QQ', // 发送者的邮箱厂商，支持列表：https://nodemailer.com/smtp/well-known/
         port: 465, // SMTP 端口
@@ -16,7 +15,7 @@ module.exports = sendEmail = (data = {}) => {
     let mailOptions = {
         from: `"G-Work" <${user}>`, // 发送者昵称和地址
         to: data.email, // 接收者的邮箱地址
-        subject: `【${data.name}】, ${data.title}`, // 邮件主题
+        subject: `【${data.name}】${data.title}`, // 邮件主题
         html: data.content || ''
     };
     //发送邮件
