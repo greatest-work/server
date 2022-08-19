@@ -2,6 +2,8 @@
 node_modules
 /dist
 /const
+/admin
+/blog
 
 # local env files
 .env.local
