@@ -50,16 +50,23 @@ exports.build = async (siteId = null) => {
                 } catch (error) {
                     reject(error)
                 }
-                console.log(siteInfo);
-                sendEmail({
-                    ...siteInfo[0], 
-                    email: '491324693@qq.com', 
-                    content: `构建成功！\n <a href="${siteInfo[0].siteLink}">${siteInfo[0].siteLink}</a>`,
-                    title: `构建完成`
-                })
                 resolve({
                     code: 200
                 })
+
+                try {
+                    const result = await controller.getSystemList();
+                    const adminMail = result?.find(item => item.name === 'adminMail');
+                    if(!adminMail) return
+                    sendEmail({
+                        ...siteInfo[0], 
+                        email: adminMail?.value, 
+                        content: `构建成功！\n <a href="${siteInfo[0].siteLink}">${siteInfo[0].siteLink}</a>`,
+                        title: `构建完成`
+                    })
+                } catch (error) {
+                    console.log(`管理员邮箱不存在`);
+                }
                 
             }).catch(error => {
                 reject(error)

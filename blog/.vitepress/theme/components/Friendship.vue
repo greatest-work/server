@@ -2,20 +2,21 @@
   <div class="Friendship">
       <a :href="item.link" v-for="(item,index) in FriendshipData" :key="index + item.link" target="_blank" rel="noopener noreferrer">
           <!-- <img :src="item.imgUrl" > -->
-          <div class="img-div" :style="{background:'url('+ item.imgUrl +') center center / cover no-repeat'}"></div>
+          <div class="img-div" :style="{background:'url('+ item.logo +') center center / cover no-repeat'}"></div>
           <div class="introduce">
-            <p class="nickName">{{item.nickName}}</p>
-            <p>{{item.introduce}}</p>
+            <p class="nickName">{{item.name}}</p>
+            <p>{{item.descText}}</p>
           </div>
       </a>
   </div>
 </template>
 
 <script>
+import conf from '../../utils/conf.js'
 export default {
     data(){
         return{
-            FriendshipData:[]
+            FriendshipData: conf.friendship
         }
     },
     mounted(){

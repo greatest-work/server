@@ -37,6 +37,8 @@ app.use(require('./routes/article.js').routes());
 app.use(require('./routes/dictionary.js').routes());
 app.use(require('./routes/site.js').routes());
 app.use(require('./routes/log.js').routes());
+app.use(require('./routes/system.js').routes());
+app.use(require('./routes/friendship.js').routes());
 
 const koaSwagger = require('koa2-swagger-ui');
 // swagger配置

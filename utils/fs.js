@@ -9,7 +9,7 @@ const shell = require('../utils/shell');
 exports.writeFile = async data => {
     const { title, content, id } = data;
 
-    const { blogPath } = await getBlogInfo.path()
+    const { blogPath } = await getBlogInfo.path();
     const temp = id !== 'index' ? await TEMP_ARTICLE(data) : content;
     // console.log(temp);
     return new Promise((resolve, reject) => {
