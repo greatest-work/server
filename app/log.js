@@ -9,9 +9,17 @@ const getBlogInfo = require('../utils/getBlogInfo');
 const { v4: uuidv4 } = require('uuid');
 const setLog = require('../utils/setLog');
 
-exports.getLog = async ctx => {
+exports.getLogList = async ctx => {
+    try {
+        await validate(ctx.query, {
+            limit: 'required',
+            offset: 'required'
+        })
+    } catch (error) {
+        return ctx.body = resluts(400, ctx);
+    }
     const total = await getSurfaceTotal('LOG', '');
-    await controller.getLog()
+    await controller.getLogList(ctx.query)
         .then(async result => {
             const data = {
                 total,

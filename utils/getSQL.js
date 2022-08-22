@@ -1,4 +1,4 @@
-const getWhereSQL = function(where = {}) {
+const getWhereSQL = (where = {}) => {
     let where_sql = 'WHERE '
     if(typeof where == 'object') {
         const data = Object.keys(where)
@@ -14,11 +14,13 @@ const getWhereSQL = function(where = {}) {
 
 exports.getSelectSQL = ({table, field, where, by = false, bySort = "DESC", limit}) => {
     if(!table) return new Error('参数不合法， table 是必填字段')
-    let reslutField = '';
+    let reslutField = ``;
     if(Array.isArray(field)) {
         field?.forEach((item, index) => {
             if(!item) return
+            console.log(item)
             const comma = (index + 1) !== field.length ? ', ' : '';
+            console.log(item)
             reslutField += `${table}.${item}${comma}`
         })
     } else reslutField = '*';
@@ -32,7 +34,7 @@ exports.getSelectSQL = ({table, field, where, by = false, bySort = "DESC", limit
 
 exports.getUpdateSQL = ({table, field, where}) => {
     if(!table || !field) return new Error('参数不合法， table field 是必填字段')
-    let updateField = '';
+    let updateField = ``;
     if(typeof field == 'object' && JSON.stringify(field) !== '{}') {
         const updateData = Object.keys(field)
         updateData.forEach((key, index) => {

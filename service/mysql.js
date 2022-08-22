@@ -3,7 +3,7 @@ const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
 const xss = require('xss');
 const { getSelectSQL, getUpdateSQL, getDeleteSQL } = require('../utils/getSQL');
-const newDate = () => moment().format('YYYY-MM-DD HH:MM:SS');
+const newDate = () => moment().format('YYYY-MM-DD HH:mm:ss');
 
 // ------------------------------- 文章 -- start ------------------------------- 
 exports.addArticle = (values) => {
@@ -23,7 +23,7 @@ exports.getArticles = ( page = 1, pageSize = 10, siteId) => {
             size: pageSize
         }
     }
-    if(siteId) queryInfo.field.push(content)
+    if(siteId) queryInfo.field.push('content')
     const SQL = getSelectSQL(queryInfo)
     return query(SQL);
 }
@@ -40,30 +40,17 @@ exports.updateArticleStatus = (status, id) => {
         field: { status }, 
         where
     })
-    console.log(SQL);
     return query(SQL);
-    // const SQL = `UPDATE ARTICLE SET status = '${target}' WHERE siteId = '${id}'`;
-    // return query(SQL)
 }
 
 exports.updateArticle = data => {
     const { title, id, content, userId, siteId, status, tags } = data;
-    const queryInfo = {
-        table: 'ARTICLE', 
-        field: { 
-            title, 
-            content,
-            userId, 
-            siteId, 
-            status, 
-            tags: tags.join(","),
-            updateTime: newDate()
-         }, 
-        where: { id }
-    }
-    if(content) queryInfo.content = content
-    const SQL = getUpdateSQL(queryInfo)
-    return query(SQL);
+    const updateTime = newDate();
+    const SQL = `UPDATE ARTICLE 
+        SET title=?, content=?, userId=?, siteId=?, status=?, tags=?, updateTime=? 
+        WHERE id=?`;
+    const values = [ title, xss(content), userId, siteId, status, tags.join(","), updateTime, id ]
+    return query(SQL, values);
 }
 
 exports.deleteArticle = id => {
@@ -162,6 +149,14 @@ exports.getUserInfo = username => {
     return query(SQL);
 }
 
+exports.getUserList = () => {
+    const SQL = getSelectSQL({ 
+        table: 'USER', 
+        field: ['username', 'id'], 
+    })
+    return query(SQL);
+}
+
 exports.userRegister = data => {
     const { username, password, email } = data;
     const SQL = `INSERT INTO USER SET username=?, password=?, email=?, createTime=?, updateTime=?, id=?`;
@@ -181,16 +176,61 @@ exports.addLog = data => {
     return query(SQL, [ip, newDate(), userId, sentence, content, uuidv4(), reslut ]);
 }
 
-exports.getLog = (limit, offset) => {
+exports.getLogList = ({limit, offset}) => {
     const queryInfo = {
         table: 'LOG',
-        field: ['userId', 'time', 'sentence', 'ip'],
-        by: 'time',
+        field: ['userId', 'time', 'sentence', 'ip', 'id'],
+        limit: {
+            index: (offset - 1) * limit,
+            size: limit
+        },
+        by: 'time'
+    }
+    const SQL = getSelectSQL(queryInfo)
+    return query(SQL)
+}
+
+
+// ------------------------------- 日志 -- end ------------------------------- 
+
+// ------------------------------- 系统 -- end ------------------------------- 
+
+exports.getSystemList = () => {
+    const queryInfo = {
+        table: 'SYSTEM',
+        field: ['id', 'name', 'value'],
     }
     const SQL = getSelectSQL(queryInfo)
     console.log(SQL);
     return query(SQL)
 }
+
+// ------------------------------- 系统 -- end ------------------------------- 
+
+exports.getFriendshipList = ({limit, offset} = {}) => {
+    const queryInfo = { table: 'FRIENDSHIP' }
+    if(limit && offset) {
+        queryInfo.limit = {
+            index: (offset - 1) * limit,
+            size: limit
+        }
+    }
+    const SQL = getSelectSQL(queryInfo)
+    return query(SQL)
+}
+
+exports.addFriendship = ({ name, link, logo, descText, siteId }) => {
+    const SQL = `INSERT INTO FRIENDSHIP SET name=?, link=?, logo=?, descText=?, siteId=?, id=?`;
+    return query(SQL, [name, link, logo, descText, siteId, uuidv4()]);
+}
+
+// exports.userRegister = data => {
+//     const { username, password, email } = data;
+//     const SQL = `INSERT INTO USER SET username=?, password=?, email=?, createTime=?, updateTime=?, id=?`;
+//     return query(SQL, [username, password, email, newDate(), newDate(), uuidv4()]);
+// }
+
+
 
 exports.getDictionary = (key) => {
     const SQL = `SELECT * FROM BLOG_CONFIG WHERE field = '${key}'`;

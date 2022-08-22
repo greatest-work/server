@@ -36,9 +36,7 @@ async function getConfig() {
         {
           text: '🔨 关于',
           items: [
-            { text: "📜 README", link: "/README" },
-            { text: "📫 订阅我", link: "/more/subscribe" },
-            { text: "📝 建站日志", link: "/more/update-log" },
+            { text: "📜 README", link: "/README" }
           ]
         },
       ],
