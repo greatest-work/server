@@ -52,3 +52,17 @@ exports.getDeleteSQL = ({table, where}) => {
     const targetWhere = where ? getWhereSQL(where) : '';
     return `DELETE FROM ${table} ${targetWhere}`;
 }
+
+exports.getBatchSQL = ({ table, field = 'value', fieldList, where = 'id', whereList }) => {
+    if(!table || !fieldList || !whereList) return new Error('参数不合法， table fieldList whereList 是必填字段')
+    const where_sql = fieldList?.map((item, index) => `WHEN '${whereList[index]}' THEN '${item}'`);
+    let where_list = ``
+    whereList?.forEach((item, index) =>{ 
+        const comma = (index + 1) !== whereList.length ? ', ' : '';
+        where_list += `'${item}'${comma}`
+    })
+    console.log(`UPDATE ${table} SET ${field} = CASE ${where} ${where_sql?.join(',')?.replaceAll(',', ' ')} END WHERE ${where} IN (${where_list})`)
+    return `UPDATE ${table} SET ${field} = CASE ${where} ${where_sql?.join(',')?.replaceAll(',', ' ')} END WHERE ${where} IN (${where_list})`
+}
+
+
