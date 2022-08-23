@@ -2,7 +2,7 @@ const query = require('../utils/query')
 const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
 const xss = require('xss');
-const { getSelectSQL, getUpdateSQL, getDeleteSQL } = require('../utils/getSQL');
+const { getSelectSQL, getUpdateSQL, getDeleteSQL, getBatchSQL } = require('../utils/getSQL');
 const newDate = () => moment().format('YYYY-MM-DD HH:mm:ss');
 
 // ------------------------------- 文章 -- start ------------------------------- 
@@ -205,6 +205,12 @@ exports.getSystemList = () => {
     return query(SQL)
 }
 
+exports.updateSystemList = (data) => {
+    const whereList = Object.keys(data);
+    const fieldList = Object.values(data)
+    const SQL = getBatchSQL({table: 'SYSTEM', where: 'name', whereList, fieldList})
+    return query(SQL);
+}
 // ------------------------------- 系统 -- end ------------------------------- 
 
 exports.getFriendshipList = ({limit, offset} = {}) => {
