@@ -54,6 +54,7 @@ exports.userLogin = async ctx => {
             sendEmail({
                 name:'登录通知', 
                 email: adminMail.value, 
+                type: 'login', 
                 content: `登录时间:<b>${new Date()}</b> <br/>
                 登录IP：<b>${ip}</b><br/>
                 登录账号：<b>${username}</b><br/>

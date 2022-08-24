@@ -56,18 +56,12 @@ exports.getSiteInfo = async ctx => {
     const { siteId } = ctx.params;
     if(!siteId) return ctx.body = resluts(400, ctx);
     await controller.getSiteInfo(siteId)
-        .then(result => {
+        .then(async result => {
+            console.log(result)
             let data = {}
-            if (result?.length) {
-                data = result[0];
-
-            } else {
-                data = {
-                    code: 200,
-                    msg: '暂无数据'
-                }
-            }
-            return ctx.body = data
+            const articleTotal = await getSurfaceTotal('ARTICLE', `siteId = '${siteId}'`);
+            console.log(articleTotal)
+            return ctx.body = resluts(200, ctx, { ...result[0], articleTotal })
         }).catch((err) => {
             return ctx.body = 'error'
         })

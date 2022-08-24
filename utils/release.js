@@ -59,6 +59,7 @@ exports.build = async (siteId = null) => {
                     const adminMail = result?.find(item => item.name === 'adminMail');
                     if(!adminMail) return
                     sendEmail({
+                        type: 'build',
                         ...siteInfo[0], 
                         email: adminMail?.value, 
                         content: `构建成功！\n <a href="${siteInfo[0].siteLink}">${siteInfo[0].siteLink}</a>`,

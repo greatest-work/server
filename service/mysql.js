@@ -85,7 +85,7 @@ exports.addSite = (values) => {
         logo: 'https://avatars.githubusercontent.com/u/108932724?s=400&u=b10bf7bb6984b255e81dde608745594edd0266c5&v=4',
         theme: 'default',
     }
-    const { logo = defaultVal.logo, description = '', status = 1, theme = defaultVal.theme, path, name, siteLink} = values;
+    const { logo = defaultVal.logo, description = '', status = 0, theme = defaultVal.theme, path, name, siteLink} = values;
     const SQL = "INSERT INTO SITE SET id=?,logo=?,description=?,status=?,theme=?,path=?,name=?, createTime = ?, updateTime = ?, siteLink= ?;"
     return query(SQL, [ id, logo, description, status, theme, path, name, newDate(), newDate(), siteLink ])
 }
@@ -213,8 +213,11 @@ exports.updateSystemList = (data) => {
 }
 // ------------------------------- 系统 -- end ------------------------------- 
 
-exports.getFriendshipList = ({limit, offset} = {}) => {
-    const queryInfo = { table: 'FRIENDSHIP' }
+exports.getFriendshipList = ({limit, offset, siteId} = {}) => {
+    const queryInfo = { 
+        table: 'FRIENDSHIP', 
+        where: siteId ? { siteId } : undefined 
+    }
     if(limit && offset) {
         queryInfo.limit = {
             index: (offset - 1) * limit,

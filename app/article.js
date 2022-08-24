@@ -119,7 +119,7 @@ exports.resetBuild = async ctx => {
         return ctx.body = resluts(400, ctx)
     }
     try {
-        await controller.updateSiteStatus(0, siteId)
+        await controller.updateSiteStatus(2, siteId)
         await controller.updateArticleStatus(2, siteId);
     } catch (error) {
         return ctx.body = resluts(500, ctx, { error })

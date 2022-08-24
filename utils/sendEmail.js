@@ -1,7 +1,16 @@
 const nodemailer = require('nodemailer'); //发送邮件的node插件
-const { pass, user } = require('../const/email');
 
-module.exports = sendEmail = (data = {}) => {
+const controller = require('../service/mysql.js');
+
+module.exports = sendEmail = async (data = {}) => {
+    const systemList = await controller.getSystemList();
+    const { value: user } = systemList.find(item => item.name === "sendMail");
+    const { value: pass } = systemList.find(item => item.name === "mailPassCode");
+    const { value: login } = systemList.find(item => item.name === "loginTip");
+    const { value: build } = systemList.find(item => item.name === "buildTip");
+    
+    if(data.type === "login" && login === "0") return console.log("登录无需发邮件");
+    if(data.type === "build" && build === "0") return console.log("构建无需发邮件");
     let transporter = nodemailer.createTransport({
         service: 'QQ', // 发送者的邮箱厂商，支持列表：https://nodemailer.com/smtp/well-known/
         port: 465, // SMTP 端口

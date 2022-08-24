@@ -4,8 +4,10 @@ const resluts = require('../utils/status');
 
 exports.getFriendshipList = async ctx => {
     await controller.getFriendshipList(ctx.query)
-        .then(async result => {
-            ctx.body = resluts(200, ctx, { result })
+        .then(async items => {
+            const queryInfo = ctx.query.siteId ? `siteId = '${ctx.query.siteId}'` : '';
+            const total = await getSurfaceTotal('FRIENDSHIP', queryInfo);
+            ctx.body = resluts(200, ctx, { items, total})
         }).catch((err) => {
             ctx.body = err;
         })
