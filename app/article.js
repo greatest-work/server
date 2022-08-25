@@ -116,7 +116,7 @@ exports.resetBuild = async ctx => {
     const queryInfo = siteId ? `siteId = '${siteId}'` : '';
     const total = await getSurfaceTotal('ARTICLE', queryInfo);
     if(!total) {
-        return ctx.body = resluts(400, ctx)
+        return ctx.body = resluts(400, ctx, { msg: "该站点没有文章！可添加文章后重试" })
     }
     try {
         await controller.updateSiteStatus(2, siteId)

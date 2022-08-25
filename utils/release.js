@@ -5,7 +5,7 @@ const getSurfaceTotal = require('../service/count');
 const { exec, execSync  } = require('child_process');
 const getBlogInfo = require('./getBlogInfo')
 const sendEmail = require('./sendEmail')
-
+const { v4: uuidv4 } = require('uuid');
 // 发布文章
 exports.write = async (data) => {
     return new Promise(async (resolve, reject) => {
@@ -21,27 +21,33 @@ exports.write = async (data) => {
 exports.build = async (siteId = null) => {
     const { blogPath, webPath } = await getBlogInfo.path(siteId);
     await file.writeConfigFile(siteId);
+    const buildId = uuidv4();
+    try {
+        await controller.addBuildLog({ id: buildId,  siteId})
+    } catch (error) {
+        console.log(error)
+    }
     const msg = '编译整包完成'
     return new Promise(async (resolve, reject) => {
-        await shell(`cd ${blogPath} && yarn install`).then(async res => {
+        await shell(`cd ${blogPath} && yarn install`, buildId).then(async res => {
             console.log("下载依赖完成");
             console.log("开始打包");
             
             try {
-                await shell(`cd ${blogPath} && yarn build`)
+                await shell(`cd ${blogPath} && yarn build`, buildId)
             } catch (error) {
                 reject(error)
             }
             console.log(msg);
             try {
-                await shell(`cd ${webPath} && ls -l docs`)
+                await shell(`cd ${webPath} && ls -l docs`, buildId)
             } catch (error) {
                 console.log(error);
-                await shell(`cd ${webPath} && mkdir docs`)
+                await shell(`cd ${webPath} && mkdir docs`, buildId)
             }
             
-            await shell(`cd ${webPath} && rm *.html && rm -rf docs`);
-            await shell(`cp -r ${blogPath}/.vitepress/dist/* ${webPath}`).then(async res => {
+            await shell(`cd ${webPath} && rm *.html && rm -rf docs`, buildId);
+            await shell(`cp -r ${blogPath}/.vitepress/dist/* ${webPath}`, buildId).then(async res => {
                 controller.updateSiteStatus(1, siteId)
                 controller.updateArticleStatus(1, { siteId });
                 let siteInfo = null

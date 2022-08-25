@@ -190,6 +190,32 @@ exports.getLogList = ({limit, offset}) => {
     return query(SQL)
 }
 
+exports.addBuildLog = data => {
+    const { userId, siteId, id } = data;
+    const SQL = `INSERT INTO BUILD_LOG SET id=?, userId=?, siteId=?`;
+    console.log(SQL);
+    return query(SQL, [id, userId, siteId]);
+}
+
+const getBuildLogInfo = id => {
+    const SQL = getSelectSQL({ 
+        table: 'BUILD_LOG',  
+        where: { id } 
+    })
+    return query(SQL);
+}
+exports.getBuildLogInfo = getBuildLogInfo
+
+exports.updateBuildLog = async data => {
+    const { content, id } = data;
+    const [ info ] = await getBuildLogInfo(id);
+    console.log(info)
+    if(!info) return console.log('不存在日志');
+    const newContent = !info.content ? content : `${info.content}\n${content}`
+    const SQL = `UPDATE BUILD_LOG SET content=? WHERE id=?`;
+    return query(SQL, [newContent, id]);
+}
+
 
 // ------------------------------- 日志 -- end ------------------------------- 
 
