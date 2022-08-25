@@ -5,7 +5,6 @@ const resluts = require('../utils/status');
 const file = require('../utils/fs');
 const shell = require('../utils/shell');
 const getSurfaceTotal = require('../service/count')
-const { v4: uuidv4 } = require('uuid');
 
 exports.getSite = async ctx => {
     const { page, pageSize } = qs.get(ctx.request.url);
@@ -56,20 +55,11 @@ exports.getSiteInfo = async ctx => {
     const { siteId } = ctx.params;
     if(!siteId) return ctx.body = resluts(400, ctx);
     await controller.getSiteInfo(siteId)
-        .then(result => {
-            let data = {}
-            if (result?.length) {
-                data = result[0];
-
-            } else {
-                data = {
-                    code: 200,
-                    msg: '暂无数据'
-                }
-            }
-            return ctx.body = data
-        }).catch((err) => {
-            return ctx.body = 'error'
+        .then(async result => {
+            const articleTotal = await getSurfaceTotal('ARTICLE', `siteId = '${siteId}'`);
+            return ctx.body = resluts(200, ctx, { ...result[0], articleTotal })
+        }).catch((error) => {
+            return ctx.body = resluts(500, ctx, { error })
         })
 }
 

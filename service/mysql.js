@@ -85,7 +85,7 @@ exports.addSite = (values) => {
         logo: 'https://avatars.githubusercontent.com/u/108932724?s=400&u=b10bf7bb6984b255e81dde608745594edd0266c5&v=4',
         theme: 'default',
     }
-    const { logo = defaultVal.logo, description = '', status = 1, theme = defaultVal.theme, path, name, siteLink} = values;
+    const { logo = defaultVal.logo, description = '', status = 0, theme = defaultVal.theme, path, name, siteLink} = values;
     const SQL = "INSERT INTO SITE SET id=?,logo=?,description=?,status=?,theme=?,path=?,name=?, createTime = ?, updateTime = ?, siteLink= ?;"
     return query(SQL, [ id, logo, description, status, theme, path, name, newDate(), newDate(), siteLink ])
 }
@@ -190,6 +190,32 @@ exports.getLogList = ({limit, offset}) => {
     return query(SQL)
 }
 
+exports.addBuildLog = data => {
+    const { userId, siteId, id } = data;
+    const SQL = `INSERT INTO BUILD_LOG SET id=?, userId=?, siteId=?`;
+    console.log(SQL);
+    return query(SQL, [id, userId, siteId]);
+}
+
+const getBuildLogInfo = id => {
+    const SQL = getSelectSQL({ 
+        table: 'BUILD_LOG',  
+        where: { id } 
+    })
+    return query(SQL);
+}
+exports.getBuildLogInfo = getBuildLogInfo
+
+exports.updateBuildLog = async data => {
+    const { content, id } = data;
+    const [ info ] = await getBuildLogInfo(id);
+    console.log(info)
+    if(!info) return console.log('不存在日志');
+    const newContent = !info.content ? content : `${info.content}\n${content}`
+    const SQL = `UPDATE BUILD_LOG SET content=? WHERE id=?`;
+    return query(SQL, [newContent, id]);
+}
+
 
 // ------------------------------- 日志 -- end ------------------------------- 
 
@@ -213,8 +239,11 @@ exports.updateSystemList = (data) => {
 }
 // ------------------------------- 系统 -- end ------------------------------- 
 
-exports.getFriendshipList = ({limit, offset} = {}) => {
-    const queryInfo = { table: 'FRIENDSHIP' }
+exports.getFriendshipList = ({limit, offset, siteId} = {}) => {
+    const queryInfo = { 
+        table: 'FRIENDSHIP', 
+        where: siteId ? { siteId } : undefined 
+    }
     if(limit && offset) {
         queryInfo.limit = {
             index: (offset - 1) * limit,

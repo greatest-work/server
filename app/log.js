@@ -30,4 +30,24 @@ exports.getLogList = async ctx => {
             ctx.body = err;
         })
 }
+// 获取构建日志的详情
+exports.getBuildLogInfo = async ctx => {
+    const { buildId } = ctx.params;
+    try {
+        await validate(ctx.params, {
+            buildId: 'required'
+        })
+    } catch (error){
+        ctx.body = resluts(400, ctx, { error });
+    }
+    try {
+        console.log(buildId)
+        const [ info ] =  await controller.getBuildLogInfo(buildId);
+        console.log(info)
+        ctx.body = resluts(200, ctx, info);
+    } catch (error) {
+        ctx.body = resluts(500, ctx, error)
+    }
+    
+}
 
