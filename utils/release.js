@@ -6,6 +6,8 @@ const { exec, execSync  } = require('child_process');
 const getBlogInfo = require('./getBlogInfo')
 const sendEmail = require('./sendEmail')
 const { v4: uuidv4 } = require('uuid');
+const moment = require('moment');
+const newDate = () => moment().format('YYYY-MM-DD HH:mm:ss');
 // 发布文章
 exports.write = async (data) => {
     return new Promise(async (resolve, reject) => {
@@ -48,6 +50,7 @@ exports.build = async (siteId = null) => {
             
             await shell(`cd ${webPath} && rm *.html && rm -rf docs`, buildId);
             await shell(`cp -r ${blogPath}/.vitepress/dist/* ${webPath}`, buildId).then(async res => {
+                controller.updateBuildLog({ content: `[${newDate()}] [success] site deployment completed`, id: buildId })
                 controller.updateSiteStatus(1, siteId)
                 controller.updateArticleStatus(1, { siteId });
                 let siteInfo = null
