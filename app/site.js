@@ -5,7 +5,6 @@ const resluts = require('../utils/status');
 const file = require('../utils/fs');
 const shell = require('../utils/shell');
 const getSurfaceTotal = require('../service/count')
-const { v4: uuidv4 } = require('uuid');
 
 exports.getSite = async ctx => {
     const { page, pageSize } = qs.get(ctx.request.url);
@@ -57,13 +56,10 @@ exports.getSiteInfo = async ctx => {
     if(!siteId) return ctx.body = resluts(400, ctx);
     await controller.getSiteInfo(siteId)
         .then(async result => {
-            console.log(result)
-            let data = {}
             const articleTotal = await getSurfaceTotal('ARTICLE', `siteId = '${siteId}'`);
-            console.log(articleTotal)
             return ctx.body = resluts(200, ctx, { ...result[0], articleTotal })
-        }).catch((err) => {
-            return ctx.body = 'error'
+        }).catch((error) => {
+            return ctx.body = resluts(500, ctx, { error })
         })
 }
 
