@@ -50,7 +50,7 @@ exports.build = async (siteId = null) => {
             
             await shell(`cd ${webPath} && rm *.html && rm -rf docs`, buildId);
             await shell(`cp -r ${blogPath}/.vitepress/dist/* ${webPath}`, buildId).then(async res => {
-                controller.updateBuildLog({ content: `[${newDate()}] [success] site deployment completed`, id: buildId })
+                controller.updateBuildLog({ content: `[${newDate()}] [success] site deployment completed`, id: buildId, status: 1 })
                 controller.updateSiteStatus(1, siteId)
                 controller.updateArticleStatus(1, { siteId });
                 let siteInfo = null

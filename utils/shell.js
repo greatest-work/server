@@ -11,19 +11,20 @@ module.exports = shell = async (shell, buildId) => {
                 if (error) {
                     console.log(error)
                     reject(error);
-                    controller.updateBuildLog({ content: error, id: buildId })
+                    controller.updateBuildLog({ content: `[${newDate()}] ${error}`, id: buildId, status: 2 })
                 }
                 resolve({stdout, stderr})
             });
             sh.stdout.on('data', (data) => {
-                controller.updateBuildLog({ content: `[${newDate()}] ${data}`, id: buildId })
+                controller.updateBuildLog({ content: `[${newDate()}] ${data}`, id: buildId, status: 0 })
                 console.log(`[data]: ${data}`);
             })
             sh.stderr.on('data', (error) => {
-                controller.updateBuildLog({ content: `[${newDate()}] ${error}`, id: buildId })
+                controller.updateBuildLog({ content: `[${newDate()}] ${error}`, id: buildId,  status: 2  })
                 console.log(`[error]: ${error}`);
             })
         } catch (error) {
+            controller.updateBuildLog({ content: `[${newDate()}] ${error}`, id: buildId, status: 2 })
             console.log(error);
             reject(error)
         }
