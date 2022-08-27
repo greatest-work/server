@@ -51,3 +51,26 @@ exports.getBuildLogInfo = async ctx => {
     
 }
 
+exports.getBuildLogList = async ctx => {
+    try {
+        await validate(ctx.query, {
+            limit: 'required',
+            offset: 'required',
+        })
+    } catch (error) {
+        return ctx.body = resluts(400, ctx);
+    }
+    const { siteId } = ctx.params;
+    const queryInfo = siteId ? `siteId = '${siteId}'` : '';
+    const total = await getSurfaceTotal('BUILD_LOG', queryInfo);
+    await controller.getBuildLogList({...ctx.query, siteId})
+        .then(async result => {
+            const data = {
+                total,
+                items: result
+            }
+            ctx.body = resluts(200, ctx, data)
+        }).catch((err) => {
+            ctx.body = err;
+        })
+}

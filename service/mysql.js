@@ -207,13 +207,27 @@ const getBuildLogInfo = id => {
 exports.getBuildLogInfo = getBuildLogInfo
 
 exports.updateBuildLog = async data => {
-    const { content, id } = data;
+    const { content, id, status } = data;
     const [ info ] = await getBuildLogInfo(id);
     console.log(info)
     if(!info) return console.log('不存在日志');
     const newContent = !info.content ? content : `${info.content}\n${content}`
-    const SQL = `UPDATE BUILD_LOG SET content=? WHERE id=?`;
-    return query(SQL, [newContent, id]);
+    const SQL = `UPDATE BUILD_LOG SET content=?, status=? WHERE id=?`;
+    return query(SQL, [newContent, status, id]);
+}
+
+exports.getBuildLogList = ({siteId, limit, offset}) => {
+    const SQL = getSelectSQL({ 
+        table: 'BUILD_LOG', 
+        limit: {
+            index: (offset - 1) * limit,
+            size: limit
+        },
+        field: ['id', 'startTime', 'status'], 
+        by: 'startTime',
+        where: { siteId }
+    })
+    return query(SQL);
 }
 
 
