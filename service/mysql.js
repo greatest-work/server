@@ -268,6 +268,15 @@ exports.getFriendshipList = ({limit, offset, siteId} = {}) => {
     return query(SQL)
 }
 
+exports.getComment = ({ siteId }) => {
+    const queryInfo = {
+        table: 'COMMENT',
+        where: siteId ? { siteId } : undefined,
+    }
+    const SQL = getSelectSQL(queryInfo);
+    return query(SQL)
+}
+
 exports.addFriendship = ({ name, link, logo, descText, siteId }) => {
     const SQL = `INSERT INTO FRIENDSHIP SET name=?, link=?, logo=?, descText=?, siteId=?, id=?`;
     return query(SQL, [name, link, logo, descText, siteId, uuidv4()]);
