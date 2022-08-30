@@ -1,11 +1,11 @@
 const file = require('./fs');
 const controller = require('../service/mysql.js');
 const shell = require('./shell');
-const getSurfaceTotal = require('../service/count');
-const { exec, execSync  } = require('child_process');
 const getBlogInfo = require('./getBlogInfo')
 const sendEmail = require('./sendEmail')
 const { v4: uuidv4 } = require('uuid');
+const LOG = require('../app/log');
+
 const moment = require('moment');
 const newDate = () => moment().format('YYYY-MM-DD HH:mm:ss');
 // 发布文章
@@ -29,7 +29,12 @@ exports.build = async (siteId = null) => {
     } catch (error) {
         console.log(error)
     }
-    const msg = '编译整包完成'
+    const msg = '编译整包完成';
+    const SSEList = LOG.getBuildCL();
+    Object.keys(SSEList)?.forEach(sse => {
+        SSEList[sse].send('build');
+    })
+
     return new Promise(async (resolve, reject) => {
         await shell(`cd ${blogPath} && yarn install`, buildId).then(async res => {
             console.log("下载依赖完成");

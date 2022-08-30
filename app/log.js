@@ -74,3 +74,15 @@ exports.getBuildLogList = async ctx => {
             ctx.body = err;
         })
 }
+const SSEList = {};
+
+exports.buildSSE = async (ctx) => {
+    const SSE_KYE = ctx.request.header['x-real-ip']
+    SSEList[SSE_KYE] = ctx.sse;
+}
+
+const getBuildCL = () => {
+    return SSEList
+}
+
+exports.getBuildCL = getBuildCL
