@@ -13,7 +13,7 @@ module.exports = TEMP_BLOG_CONFIG = async siteId => {
     title: '${data.name}',
     logo: '${data.logo}',
     friendship: ${JSON.stringify(FRIENDSHIP)},
-    comment: ${JSON.stringify(COMMENT)}}
+    comment: ${JSON.stringify(COMMENT)}
 }`
 )
     })

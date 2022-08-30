@@ -2,10 +2,11 @@ const controller = require('../service/mysql.js');
 const validate = require('../utils/validate');
 const resluts = require('../utils/status');
 
-exports.getFriendshipList = async ctx => {
-    await controller.getFriendshipList(ctx.query)
+exports.getCommentList = async ctx => {
+    await controller.getCommentList(ctx.query)
         .then(async items => {
             const queryInfo = ctx.query.siteId ? `siteId = '${ctx.query.siteId}'` : '';
+            // 这里？
             const total = await getSurfaceTotal('FRIENDSHIP', queryInfo);
             ctx.body = resluts(200, ctx, { items, total})
         }).catch((err) => {
@@ -13,20 +14,16 @@ exports.getFriendshipList = async ctx => {
         })
 }
 
-exports.addFriendship = async ctx => {
+exports.addComment = async ctx => {
     const data = ctx.request.body;
     try {
         await validate(data, {
-            name: 'required',
-            link: 'required',
-            logo: 'required',
-            descText: 'required',
-            siteId: 'required'
+            siteId: 'required',
         })
     } catch (error) {
         return ctx.body = resluts(400, ctx, { error })
     }
-    await controller.addFriendship(data)
+    await controller.addComment(data)
         .then(async result => {
             ctx.body = resluts(201, ctx, { result })
         }).catch((error) => {
