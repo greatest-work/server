@@ -20,7 +20,8 @@ async function getConfig() {
         { rel: "stylesheet", href: "https://lib.baomitu.com/gitalk/1.7.0/gitalk.min.css" },
       ],
       ["script", { src: "https://lib.baomitu.com/gitalk/1.7.0/gitalk.min.js" }],
-      ["script", { src: "https://lib.baomitu.com/axios/0.21.1/axios.js" }]
+      ["script", { src: "https://lib.baomitu.com/axios/0.21.1/axios.js" }],
+      ["script", { src: "/utils/bai_pv.js" }]
     ],
     title: conf.title,
     themeConfig: {

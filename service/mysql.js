@@ -50,7 +50,7 @@ exports.updateArticle = data => {
     const SQL = `UPDATE ARTICLE 
         SET title=?, content=?, userId=?, siteId=?, status=?, tags=?, updateTime=? 
         WHERE id=?`;
-    const values = [ title, xss(content), userId, siteId, status, tags.join(","), updateTime, id ]
+    const values = [ title, content, userId, siteId, status, tags.join(","), updateTime, id ]
     return query(SQL, values);
 }
 

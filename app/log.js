@@ -77,6 +77,7 @@ exports.getBuildLogList = async ctx => {
 const SSEList = {};
 
 exports.buildSSE = async (ctx) => {
+    console.log(ctx)
     const SSE_KYE = ctx.request.header['x-real-ip']
     SSEList[SSE_KYE] = ctx.sse;
 }
