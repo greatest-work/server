@@ -11,6 +11,16 @@ title: "${data.title}"
 date: ${data.createTime}
 description: xxxx
 tags: ${tagStr}
+head:
+  - - meta
+    - name: headline
+      content: ${data.title}
+  - - meta
+    - name: keywords
+      content: ${data.tags}
+  - - meta
+    - name: datePublished
+      content: ${data.createTime}
 ---
 
 ${data.content}
