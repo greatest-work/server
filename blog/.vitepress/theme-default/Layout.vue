@@ -230,6 +230,8 @@ export default {
   },
 };
 </script>
+
+
 <style scoped>
 @media screen and (max-width: 1200px) {
   .content-bg,
@@ -256,8 +258,8 @@ export default {
   margin: 2em 1em;
   white-space: nowrap;
   overflow: hidden;
-  animation: typing 5s steps(12, end),
-  /*英文速度*/ blink-caret 0.5s step-end infinite alternate;
+  /*animation: typing 5s steps(12, end),*/
+  /* blink-caret 0.5s step-end infinite alternate;*/
 }
 .content-bg {
   width: 100%;

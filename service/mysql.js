@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const xss = require('xss');
 const { getSelectSQL, getUpdateSQL, getDeleteSQL, getBatchSQL } = require('../utils/getSQL');
 const newDate = () => moment().format('YYYY-MM-DD HH:mm:ss');
+const { getBuildCL } = require('../app/log')
 
 // ------------------------------- 文章 -- start ------------------------------- 
 exports.addArticle = (values) => {
@@ -49,7 +50,7 @@ exports.updateArticle = data => {
     const SQL = `UPDATE ARTICLE 
         SET title=?, content=?, userId=?, siteId=?, status=?, tags=?, updateTime=? 
         WHERE id=?`;
-    const values = [ title, xss(content), userId, siteId, status, tags.join(","), updateTime, id ]
+    const values = [ title, content, userId, siteId, status, tags.join(","), updateTime, id ]
     return query(SQL, values);
 }
 
@@ -209,10 +210,16 @@ exports.getBuildLogInfo = getBuildLogInfo
 exports.updateBuildLog = async data => {
     const { content, id, status } = data;
     const [ info ] = await getBuildLogInfo(id);
-    console.log(info)
     if(!info) return console.log('不存在日志');
     const newContent = !info.content ? content : `${info.content}\n${content}`
     const SQL = `UPDATE BUILD_LOG SET content=?, status=? WHERE id=?`;
+    const SSEList = getBuildCL();
+    Object.keys(SSEList)?.forEach(sse => {
+        SSEList[sse].send(content);
+        if(status === 1) {
+            SSEList[sse].sendEnd('close');
+        }
+    })
     return query(SQL, [newContent, status, id]);
 }
 

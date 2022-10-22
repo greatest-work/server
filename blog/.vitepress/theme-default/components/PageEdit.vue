@@ -1,7 +1,9 @@
 <template>
   <div>
      <footer class="page-edit">
-     <p class="platform"> Copyright &copy; 2020-2021 <a href="https://github.com/CrazyMrYan">@CrazyMrYan</a> </p>
+     <p class="platform"> Copyright &copy; 2020-2022
+        <a href="https://github.com/CrazyMrYan">@CrazyMrYan</a> 
+        <a href="https://beian.miit.gov.cn/">湘ICP备2022013329号-1</a> </p>
       </footer>
   </div>
 </template>

@@ -6,14 +6,16 @@ const cors = require('@koa/cors');
 const { port, host, HTTP } = ServerConfig;
 const URL = `${HTTP}://${host}:${port}`;
 const resluts = require('./utils/status');
-
 const app = new Koa();
+const koaSwagger = require('koa2-swagger-ui');
+// swagger配置
+const swagger = require('./config/swagger.config');
+
 app.use(bodyParser());
 app.proxy = true;
 app.use(cors({
   origin: [`${HTTP}://${host}/`],
 }))
-
 
 app.use((ctx, next) => {
   return next().catch(err => {
@@ -28,7 +30,7 @@ app.use((ctx, next) => {
 app.use(koajwt({
   secret: 'greatest-work-admin'
 }).unless({
-  path: ['/user/login', '/user/register']
+  path: ['/user/login', '/user/register', '/sse/test']
 }));
 
 
@@ -40,9 +42,7 @@ app.use(require('./routes/log.js').routes());
 app.use(require('./routes/system.js').routes());
 app.use(require('./routes/friendship.js').routes());
 
-const koaSwagger = require('koa2-swagger-ui');
-// swagger配置
-const swagger = require('./config/swagger.config');
+
 
 app.use(swagger.routes(), swagger.allowedMethods());
 
